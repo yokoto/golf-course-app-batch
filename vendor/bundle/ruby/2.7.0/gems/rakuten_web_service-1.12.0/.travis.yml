@@ -1,0 +1,45 @@
+language: ruby
+rvm:
+  - 2.4.3
+  - 2.5.0
+  - 2.6.0
+  - ruby-head
+
+env:
+  - INTEGRATION=yes
+  - INTEGRATION=no
+
+group: travis_lts
+
+cache: bundler
+
+before_install:
+  - curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
+  - chmod +x ./cc-test-reporter
+  - ./cc-test-reporter before-build
+  - gem install bundler
+
+bundler_args:  --without vscode
+
+script:
+  - bundle exec rake
+
+after_script:
+  - ./cc-test-reporter after-build --exit-code $TRAVIS_TEST_RESULT
+
+matrix:
+  allow_failures:
+  - rvm: ruby-head
+  exclude:
+  - rvm: 2.4.3
+    env: INTEGRATION=yes
+  - rvm: 2.5.0
+    env: INTEGRATION=yes
+  - rvm: ruby-head
+    env: INTEGRATION=yes
+
+notifications:
+  email: false
+  webhooks:
+    urls:
+      - https://webhooks.gitter.im/e/059b85fcc75550b7bc39
